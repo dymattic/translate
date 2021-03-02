@@ -1,8 +1,13 @@
 id: xyz.maubot.translate
-version: 0.1.0
-license: AGPL-3.0-or-later
+version: 0.1.1
 modules:
 - translate
 main_class: TranslatorBot
+maubot: 0.1.1.dev18
+database: false
+webapp: false
+license: AGPL-3.0-or-later
 extra_files:
-  - base-config.yaml
+- base-config.yaml
+dependencies: []
+soft_dependencies: [langdetect]

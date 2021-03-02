@@ -60,23 +60,34 @@ class TranslatorBot(Plugin):
             return
         try:
             atc = self.auto_translate[evt.room_id]
+            self.log.warn(atc)
         except KeyError:
             return
 
         def is_acceptable(lang: str) -> bool:
-            return lang == atc.main_language or lang in atc.accepted_languages
+            return True if (len(atc.accepted_languages) == 0 or lang in atc.accepted_languages) else False
 
-        try:
-            if is_acceptable(langdetect.detect(evt.content.body)):
-                return
-        except LangDetectException:
-            return
-        result = await self.translator.translate(evt.content.body, to_lang=atc.main_language)
-        if is_acceptable(result.source_language) or result.text == evt.content.body:
-            return
-        await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) said "
-                          f"(in {self.translator.get_language_name(result.source_language)}): "
-                          f"{result.text}")
+        detected_lang = langdetect.detect(evt.content.body)
+        self.log.warn(f"translation language detected: {detected_lang}")
+        if is_acceptable(detected_lang):
+            for atc_main_language in atc.main_language:
+                if atc_main_language != detected_lang :
+                    self.log.warn(f"language detected: {atc_main_language}")
+                    result = await self.translator.translate(evt.content.body, to_lang=atc_main_language, from_lang=detected_lang)
+                    await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
+                                      f"*(in {result.source_language}) "
+                                      f"__{atc_main_language}__*: "
+                                      f"{result.text}")
+        else :
+            for atc_main_language in atc.main_language:
+                result = await self.translator.translate(evt.content.body, to_lang=atc_main_language)
+                self.log.warn(f"language detected: {result.source_language} {atc_main_language}")
+                if is_acceptable(result.source_language) and result.source_language != atc_main_language:
+                    #f"(in {self.translator.get_language_name(result.source_language)}) "
+                    await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
+                                      f"*(in {result.source_language}) "
+                                      f"__{atc_main_language}__*: "
+                                      f"{result.text}")
 
     @command.new("translate", aliases=["tr"])
     @LanguageCodePair("language", required=False)
