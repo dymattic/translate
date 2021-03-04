@@ -4,7 +4,7 @@ modules:
 - translate
 main_class: TranslatorBot
 maubot: 0.1.1.dev18
-database: false
+database: true
 webapp: false
 license: AGPL-3.0-or-later
 extra_files:

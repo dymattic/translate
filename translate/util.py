@@ -21,6 +21,8 @@ from mautrix.types import RoomID
 from maubot import MessageEvent
 from maubot.handlers.command import Argument
 
+import re
+
 from .provider import AbstractTranslationProvider
 
 if TYPE_CHECKING:
@@ -60,24 +62,95 @@ class Config(BaseProxyConfig):
         return atc
 
 
+class LanguageCodeAuto(Argument):
+    def __init__(self, name: str, label: str = None, *, required: bool = False):
+        super().__init__(name, label=label, required=required, pass_raw=True)
+
+    def match(self, val: str, evt: MessageEvent = None, instance: 'TranslatorBot' = None
+              ) -> Tuple[str, Optional[int]]:
+        parts = val.split(" ", 1)
+        if len(parts) < 2:
+            parts.append("")
+        if parts[0] in ["setauto", "unsetauto", "help", "show"]:
+            return parts[1], parts[0]
+        return val, None 
+
+
 class LanguageCodePair(Argument):
     def __init__(self, name: str, label: str = None, *, required: bool = False):
         super().__init__(name, label=label, required=required, pass_raw=True)
 
     def match(self, val: str, evt: MessageEvent = None, instance: 'TranslatorBot' = None
-              ) -> Tuple[str, Optional[Tuple[str, str]]]:
-        parts = val.split(" ", 2)
+              ) -> Tuple[str, Optional[Tuple[list, list]]]:
+
+        if not val or len(val) == 0:
+            return val, None
+        if val[0] == '[':
+            parts = val.split("]", 2)
+            if len(parts) == 1:
+                return val, None
+            elif len(parts) > 1:
+                parts[0] = re.split(r'(?:,\s*|\s+)',  parts[0][1:].strip())
+                parts[1] = parts[1].strip()
+                if len(parts) > 2 and parts[1][0] == '[':
+                    parts[1] = re.split(r'(?:,\s*|\s+)',  parts[1][1:])
+                else:
+                    parts[1] = ']'.join(parts[1:])
+                    parts = [parts[0]] + parts[1].split(" ", 1)
+                    parts[1] = [parts[1]]
+        else:
+            parts = val.split(" ", 1)
+            if len(parts) == 1:
+                return val, None
+            else:
+                parts[0] = [parts[0]]
+                parts[1] = parts[1].strip()
+                if parts[1][0] == '[':
+                    parts = [parts[0]] + parts[1].split("]", 1)
+                    if len(parts) > 2:
+                        parts[1] = re.split(r'(?:,\s*|\s+)',  parts[1][1:])
+                    else:
+                        return val, None
+                else:
+                    parts = [parts[0]] + parts[1].split(" ", 1)
+                    parts[1] = [parts[1]]
+
+
         is_supported = (instance.translator.is_supported_language
                         if instance.translator
                         else lambda code: True)
-        if len(parts) == 0 or not is_supported(parts[0]):
-            return val, None
-        elif len(parts) == 1:
-            return "", ("auto", parts[0])
-        elif len(parts) == 2:
-            if is_supported(parts[1]):
-                return "", (parts[0], parts[1])
-            return parts[1], ("auto", parts[0])
-        elif is_supported(parts[1]):
-            return parts[2], (parts[0], parts[1])
-        return " ".join(parts[1:]), ("auto", parts[0])
+
+        #check language source
+        if 'auto' in parts[0]:
+            src_lang = ['auto']
+        else:
+            src_lang = []
+            for i in range(len(parts[0])):
+                if is_supported(parts[0][i]):
+                    src_lang.append(parts[0][i])
+            if len(src_lang) == 0:
+                src_lang = ['auto']
+
+        if len(parts) < 3:
+            parts.append("")
+            if len(parts) < 2:
+                parts.append("")
+
+        #check language target
+        if src_lang[0] != 'auto' and len(parts[1]) == 1 and not is_supported(parts[1][0]) :
+            trg_lang = src_lang
+            src_lang = ['auto']
+            parts[1] = parts[1][0]
+            parts[2] = " ".join(parts[1:])
+        else:
+            trg_lang = []
+            if (len(parts[1]) == 0 or (len(parts[1])==1 and parts[1]=='auto')) and src_lang[0] == 'auto' and parts[2] == "":
+                return val, ['auto','auto']
+            else:
+                for i in range(len(parts[1])):
+                    if parts[1][i]!='auto' and is_supported(parts[1][i]):
+                        trg_lang.append(parts[1][i])
+                if len(trg_lang) == 0:
+                    return val, None
+
+        return parts[2], (src_lang, trg_lang)
