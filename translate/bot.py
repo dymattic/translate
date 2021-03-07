@@ -39,7 +39,8 @@ class TranslatorBot(Plugin):
     config: Config
 
     simmilar_languages = [
-            ["ko", "zh-CN", "zh-TW", "zh-cn"]
+            ["ko", "zh-CN", "zh-TW", "zh-cn"],
+            ["de", "fi", "pl", "hu"]
             ]
 
     async def start(self) -> None:
@@ -75,15 +76,17 @@ class TranslatorBot(Plugin):
             self.db.remove_autotranslate(room_id=evt.room_id)
         await self.show_subscriptions(evt=evt)
 
-    async def show_subscriptions(self, evt: MessageEvent) -> None:
+    def subscriptions(self, evt: MessageEvent) -> None:
         atc = self.db.get_autotranslate_by_room(evt.room_id)
         if atc: 
             source_lang_t = ", ".join(atc.source_lang.split(" "))
             target_lang_t = ", ".join(atc.target_lang.split(" "))
-            await evt.reply(f"Messages are translated automatically in this room from _[{source_lang_t}]_ to _[{target_lang_t}]_ by __{atc.provider}__ in this room. Be aware that the provider will read your message content.")
+            return (f"Messages are translated automatically from _[{source_lang_t}]_ -> _[{target_lang_t}]_ by __{atc.provider}__ in this room. Be aware that the provider will read all message content.")
         else:
-            await evt.reply(f"No messages in this room are automatically translated.")
+            return f"No messages in this room are automatically translated."
 
+    async def show_subscriptions(self, evt: MessageEvent) -> None:
+        await evt.reply(subscriptions(evt))
 
     def is_acceptable(self, lang: str, accepted_languages: list) -> str: 
         if len(accepted_languages) == 0 or lang in accepted_languages:
@@ -191,12 +194,13 @@ class TranslatorBot(Plugin):
         help_response = """__Usage:__ !tr  <subcommand> [...]
 - [from] <to> [text or reply to message] - Translate text.
   example:
-  - `!tr fr en la maison est magnifique` -> French to English
+  - `!tr fr fi la maison est magnifique` -> French to Finnish
   - `!tr [en, fi] la maison est magnifique` -> Any language to English and Finnish
 - setauto [<from>, <from>] [<to>, <to>] - Automatically translate text in this room.
 - setauto [<to>] - Automatically translate all languages to a list of languages in this room.
 - unsetauto - Stop automatically translating text in this room.
 - show - Show automatic translation settings for this room.
+
 """
         self.log.warn(auto)
         if auto == 'setauto' and not language:
@@ -215,7 +219,7 @@ class TranslatorBot(Plugin):
             await self.show_subscriptions(evt=evt)
             return
         if not language or auto == 'help':
-            await evt.reply(help_response)
+            await evt.reply(help_response + self.subscriptions(evt))
             return
         if language[1] == 'auto':
             await self.unsubscribe(evt=evt)
