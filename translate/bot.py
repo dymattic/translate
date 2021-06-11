@@ -38,10 +38,7 @@ class TranslatorBot(Plugin):
     auto_translate: Dict[RoomID, AutoTranslateConfig]
     config: Config
 
-    simmilar_languages = [
-            ["ko", "zh-CN", "zh-TW", "zh-cn"],
-            ["de", "fi", "pl", "hu"]
-            ]
+    simmilar_languages = [["ko", "zh-CN", "zh-TW", "zh-cn"],["de", "fi", "pl", "hu"]]
 
     async def start(self) -> None:
         await super().start()
@@ -202,7 +199,6 @@ class TranslatorBot(Plugin):
 - show - Show automatic translation settings for this room.
 
 """
-        self.log.warn(auto)
         if auto == 'setauto' and not language:
             await evt.reply("Usage: !translate setauto [from, from] [to, to, ...]")
             return
@@ -238,11 +234,13 @@ class TranslatorBot(Plugin):
         results = []
         for target in language[1]:
             for source in language[0]:
+                self.log.warn(f"cmd: language given:    {source}  {target}")
                 result = await self.translator.translate(text, to_lang=target, from_lang=source)
                 if source == 'auto':
                     results.append(f"_{result.source_language}_ -> __{target}__: {result.text}")
                 else:
                     results.append(f"__{target}__: {result.text}")
+                self.log.warn(f"cmd: language detected: {source}  {target}")
         if len(result) > 0:
                 await evt.reply("<br>\n".join(results), allow_html=True)
         return
