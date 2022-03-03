@@ -13,6 +13,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+from pprint import pprint
 from typing import Optional, Tuple, Type, Dict, Union
 
 from mautrix.util.config import BaseProxyConfig
@@ -116,6 +117,7 @@ class TranslatorBot(Plugin):
                 or evt.sender == self.client.mxid
                 or evt.content.body[0:3] == '!tr'
         ):
+            self.log.info(pprint(evt))
             return
 
         # get atc_config from db if existent ( database config = higher prio )
@@ -132,6 +134,7 @@ class TranslatorBot(Plugin):
                 accepted_languages = atc.accepted_languages
                 main_language = atc.main_language
             except KeyError:
+                self.log.warning(f"Key error occurred: {KeyError}")
                 return
 
         detected_lang = langdetect.detect(evt.content.body)
