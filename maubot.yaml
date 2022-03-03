@@ -1,5 +1,5 @@
 id: xyz.maubot.translate
-version: 0.1.3
+version: 0.1.3.1
 modules:
 - translate
 main_class: TranslatorBot
