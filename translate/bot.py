@@ -117,7 +117,7 @@ class TranslatorBot(Plugin):
                 or evt.sender == self.client.mxid
                 or evt.content.body[0:3] == '!tr'
         ):
-            self.log.info(pprint(evt.content.body))
+            self.log.info('Event handler Message content: %s', pprint(evt.content.body))
             return
 
         # get atc_config from db if existent ( database config = higher prio )
