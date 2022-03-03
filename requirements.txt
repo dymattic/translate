@@ -1,0 +1,6 @@
+aiohttp~=3.8.1
+yarl~=1.7.2
+SQLAlchemy~=1.4.31
+mautrix~=0.9.5
+maubot~=0.1.0
+langdetect~=1.0.9
