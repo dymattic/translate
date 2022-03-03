@@ -56,9 +56,11 @@ class Config(BaseProxyConfig):
             raise TranslationProviderError("Failed to initialize translation provider") from e
 
     def load_auto_translate(self) -> Dict[RoomID, AutoTranslateConfig]:
-        atc = {value.get("room_id"): AutoTranslateConfig(value.get("main_language", "en"),
+        atc = {
+            value.get("room_id"): AutoTranslateConfig(value.get("main_language", "en"),
                                                          set(value.get("accepted_languages", [])))
-               for value in self["auto_translate"] if "room_id" in value}
+               for value in self["auto_translate"] if "room_id" in value
+        }
         return atc
 
 
