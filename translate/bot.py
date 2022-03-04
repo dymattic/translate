@@ -51,6 +51,7 @@ class TranslatorBot(Plugin):
         self.db = Database(self.database)
         self.on_external_config_update()
         if self.config["response_reply"]:
+            self.log.info('response_reply config is: %s', pprint(self.config["response_reply"]))
             self.reply = True
         else:
             self.reply = False
