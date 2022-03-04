@@ -156,7 +156,7 @@ class TranslatorBot(Plugin):
                         return
                     await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
                                       f"*(in {result.source_language}) "
-                                      f"__{atc_main_language}__:\\"
+                                      f"__{atc_main_language}__:  "
                                       f"__{result.text}__*", reply=self.reply)
         else:
             try:
@@ -170,7 +170,7 @@ class TranslatorBot(Plugin):
                 from_lang = result.source_language
                 await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
                                   f"*(in {from_lang}) "
-                                  f"__{main_language[0]}__:\\"
+                                  f"__{main_language[0]}__:  "
                                   f"__{result.text}__*", reply=self.reply)
                 for atc_main_language in main_language[1:]:
                     try:
@@ -187,7 +187,7 @@ class TranslatorBot(Plugin):
                             and result.text != evt.content.body):
                         await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
                                           f"*(in {from_lang}) "
-                                          f"__{atc_main_language}__:\\"
+                                          f"__{atc_main_language}__:  "
                                           f"__{result.text}__*", reply=self.reply)
             else:
                 for atc_main_language in main_language:
@@ -205,7 +205,7 @@ class TranslatorBot(Plugin):
                                     and result.text.strip().lower() != evt.content.body.strip().lower()):
                                 await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
                                                   f"*(in {atc_accepted_language}) "
-                                                  f"__{atc_main_language}__:\\"
+                                                  f"__{atc_main_language}__:  "
                                                   f"__{result.text}__*", reply=self.reply)
 
     @command.new("translate", aliases=["tr"])
