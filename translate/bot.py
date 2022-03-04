@@ -152,7 +152,8 @@ class TranslatorBot(Plugin):
                     await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
                                       f"*(in {result.source_language}) "
                                       f"__{atc_main_language}__*: "
-                                      f"{result.text}")
+                                      f""
+                                      f"__{result.text}__")
         else:
             try:
                 result = await self.translator.translate(evt.content.body, to_lang=main_language[0])
@@ -166,7 +167,8 @@ class TranslatorBot(Plugin):
                 await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
                                   f"*(in {from_lang}) "
                                   f"__{main_language[0]}__*: "
-                                  f"{result.text}")
+                                  f""
+                                  f"__{result.text}__")
                 for atc_main_language in main_language[1:]:
                     try:
                         result = await self.translator.translate(evt.content.body, to_lang=atc_main_language,
@@ -183,7 +185,8 @@ class TranslatorBot(Plugin):
                         await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
                                           f"*(in {from_lang}) "
                                           f"__{atc_main_language}__*: "
-                                          f"{result.text}")
+                                          f""
+                                          f"__{result.text}__")
             else:
                 for atc_main_language in main_language:
                     for atc_accepted_language in accepted_languages:
@@ -201,7 +204,8 @@ class TranslatorBot(Plugin):
                                 await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
                                                   f"*(in {atc_accepted_language}) "
                                                   f"__{atc_main_language}__*: "
-                                                  f"{result.text}")
+                                                  f""
+                                                  f"__{result.text}__")
 
     @command.new("translate", aliases=["tr"])
     @LanguageCodeAuto("auto", required=False)
