@@ -156,9 +156,9 @@ class TranslatorBot(Plugin):
                         return
                     await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
                                       f"*(in {result.source_language}) "
-                                      f"__{atc_main_language}__*: "
+                                      f"__{atc_main_language}__: "
                                       f"\n"
-                                      f"<strong> {result.text} </strong>", reply=self.reply)
+                                      f"__{result.text}__*", reply=self.reply)
         else:
             try:
                 result = await self.translator.translate(evt.content.body, to_lang=main_language[0])
@@ -171,9 +171,9 @@ class TranslatorBot(Plugin):
                 from_lang = result.source_language
                 await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
                                   f"*(in {from_lang}) "
-                                  f"__{main_language[0]}__*: "
+                                  f"__{main_language[0]}__: "
                                   f"\n"
-                                  f"<strong> {result.text} </strong>", reply=self.reply)
+                                  f"__{result.text}__*", reply=self.reply)
                 for atc_main_language in main_language[1:]:
                     try:
                         result = await self.translator.translate(evt.content.body, to_lang=atc_main_language,
@@ -189,9 +189,9 @@ class TranslatorBot(Plugin):
                             and result.text != evt.content.body):
                         await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
                                           f"*(in {from_lang}) "
-                                          f"__{atc_main_language}__*: "
+                                          f"__{atc_main_language}__: "
                                           f"\n"
-                                          f"<strong> {result.text} </strong>", reply=self.reply)
+                                          f"__{result.text}__*", reply=self.reply)
             else:
                 for atc_main_language in main_language:
                     for atc_accepted_language in accepted_languages:
@@ -208,9 +208,9 @@ class TranslatorBot(Plugin):
                                     and result.text.strip().lower() != evt.content.body.strip().lower()):
                                 await evt.respond(f"[{evt.sender}](https://matrix.to/#/{evt.sender}) "
                                                   f"*(in {atc_accepted_language}) "
-                                                  f"__{atc_main_language}__*: "
+                                                  f"__{atc_main_language}__: "
                                                   f"\n"
-                                                  f"<strong> {result.text} </strong>", reply=self.reply)
+                                                  f"__{result.text}__*", reply=self.reply)
 
     @command.new("translate", aliases=["tr"])
     @LanguageCodeAuto("auto", required=False)
